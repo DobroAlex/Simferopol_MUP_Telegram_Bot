@@ -1,4 +1,4 @@
-import set_up_env
+import src.set_up_env as set_up_env
 import telebot
 
 
