@@ -1,12 +1,12 @@
 import src.set_up_proxy as set_up_proxy
 import src.bot_creation as bot_creation
 import src.bot_utils as bot_utils
-from models.user_model import collection
+import src.utils.page_parsing as page_parsing
+from models.user_model import User
 import re
 import urllib
 from bs4 import BeautifulSoup
 
-print(collection.find())
 set_up_proxy.set_up_proxy()
 bot = bot_creation.create_bot()
 
