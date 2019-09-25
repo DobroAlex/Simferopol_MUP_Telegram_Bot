@@ -1,5 +1,5 @@
 from telebot import apihelper
-import set_up_env as env
+import src.set_up_env as env
 
 
 def set_up_proxy():
