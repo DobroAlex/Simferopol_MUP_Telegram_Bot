@@ -1,0 +1,54 @@
+import set_up_proxy
+import bot_creation
+import bot_utils
+from models.user_model import collection
+import re
+import urllib
+from bs4 import BeautifulSoup
+
+print(collection.find())
+set_up_proxy.set_up_proxy()
+bot = bot_creation.create_bot()
+
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    bot.send_message(message.chat.id, 'Start has been fired')
+
+
+@bot.message_handler(content_types=['text'])
+def work_with_request(message):
+    message.text = message.text.lower().strip()
+    try:
+        if re.match(r'\d{6}', message.text):
+            bot.send_message(message.chat.id, f'Searching for {message.text}')
+            uf = urllib.request.urlopen(f'http://mup-kgs-simf.ru/index.php?str=nach_dolg&lschet={message.text}')
+            html = uf.read()
+            html = html.decode('utf-8')
+            soup = BeautifulSoup(html, features='lxml')
+            soup_result = soup.find('div', attrs={'class': 'print1'})
+            response = soup_result.text
+            bot.send_message(message.chat.id, response)
+
+            soup_result = soup.find('div', attrs={'class': 'kvit'}).text
+            result = " ".join(soup_result.split())
+
+            response = re.search(r'По состоянию на \d\d\.\d\d\.\d\d\d\d', result).group() + '\n'
+
+            response += re.search(r'Тариф за 1м2 с \d\d\.\d\d.\d\d\d\d=(.)*р\.', result).group() + '\n'
+
+            response += re.search(r'Сумма к оплате (\d)*,(\d)* руб.', result).group() + '\n'
+
+            print(response)
+
+            bot.send_message(message.chat.id, response)
+    except Exception as e:  # ignoring PeP
+        print(f'{type(e)}:{e}')
+        bot.send_message(message.chat.id, 'ops!')
+
+
+try:
+    bot.polling(none_stop=True)
+except Exception as err:
+    print(err)
+    bot_utils.restart_bot(bot)
