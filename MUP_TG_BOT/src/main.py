@@ -1,6 +1,6 @@
-import set_up_proxy
-import bot_creation
-import bot_utils
+import src.set_up_proxy as set_up_proxy
+import src.bot_creation as bot_creation
+import src.bot_utils as bot_utils
 from models.user_model import collection
 import re
 import urllib
@@ -15,6 +15,14 @@ bot = bot_creation.create_bot()
 def start_message(message):
     bot.send_message(message.chat.id, 'Start has been fired')
 
+@bot.message_handler(commands=['register'])
+def register_routine(message):
+    bot.send_message(message.chat.id, 'Registering')
+    print(message.text)
+    account = message.text.split(' ')[1]
+    new_user = {'chat_id': str(message.chat.id),
+                'account': account}
+    collection.insert_one(new_user)
 
 @bot.message_handler(content_types=['text'])
 def work_with_request(message):
