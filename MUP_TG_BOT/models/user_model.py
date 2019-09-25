@@ -1,8 +1,9 @@
-import pymongo
+import mongoengine
 
-client = pymongo.MongoClient()
-print(f'Mongo is connected at  {client.address}')
-db = client.MUP_User
-collection = db.MUP_User
+client = mongoengine.connect('MUP_User')
+print(f'Mongo is connected at  {client.HOST} : {client.PORT}')
 
 
+class User(mongoengine.Document):
+    chat_id = mongoengine.StringField(required=True)
+    account = mongoengine.StringField(required=True)
