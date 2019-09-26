@@ -5,5 +5,5 @@ print(f'Mongo is connected at  {client.HOST} : {client.PORT}')
 
 
 class User(mongoengine.Document):
-    chat_id = mongoengine.StringField(required=True)
+    chat_id = mongoengine.StringField(required=True, unique=True)
     account = mongoengine.StringField(required=True)
