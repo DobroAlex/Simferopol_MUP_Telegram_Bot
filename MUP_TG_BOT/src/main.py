@@ -24,6 +24,9 @@ def register_routine(message):
     if not page_parsing.is_valid_page(link_generator.generate_page_from_account(account)):
         bot.send_message(message.chat.id, 'Invalid account')
         return
+    if User.objects(chat_id=str(message.chat.id)):
+        bot.send_message(message.chat.id, 'Account already exists')
+        return
     User(chat_id=str(message.chat.id), account=account).save()
     result_msg = f'New user {str(message.chat.id)} : {account} saved'
     bot.send_message(message.chat.id, result_msg)
