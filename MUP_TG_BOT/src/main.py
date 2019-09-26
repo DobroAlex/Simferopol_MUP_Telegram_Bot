@@ -2,6 +2,7 @@ import src.set_up_proxy as set_up_proxy
 import src.bot_creation as bot_creation
 import src.bot_utils as bot_utils
 import src.utils.page_parsing as page_parsing
+import src.utils.link_generator as link_generator
 from models.user_model import User
 import re
 import urllib
@@ -20,6 +21,9 @@ def start_message(message):
 @bot.message_handler(commands=['register'])
 def register_routine(message):
     account = message.text.split(' ')[1]
+    if not page_parsing.is_valid_page(link_generator.generate_page_from_account(account)):
+        bot.send_message(message.chat.id, 'Invalid account')
+        return
     User(chat_id=str(message.chat.id), account=account).save()
     result_msg = f'New user {str(message.chat.id)} : {account} saved'
     bot.send_message(message.chat.id, result_msg)
