@@ -13,15 +13,16 @@ bot = bot_creation.create_bot()
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Start has been fired')
+    bot.send_message(message.chat.id, 'Welcome to bot. You can send your account (6 digits) to retrieve current '
+                                      'information or use "/register 6digits" to get this information regularly ')
 
 
 @bot.message_handler(commands=['register'])
 def register_routine(message):
-    bot.send_message(message.chat.id, 'Registering')
-    print(message.text)
     account = message.text.split(' ')[1]
-    new_User = User(chat_id=str(message.chat.id), account=account).save()
+    User(chat_id=str(message.chat.id), account=account).save()
+    result_msg = f'New user {str(message.chat.id)} : {account} saved'
+    bot.send_message(message.chat.id, result_msg)
 
 
 @bot.message_handler(content_types=['text'])
