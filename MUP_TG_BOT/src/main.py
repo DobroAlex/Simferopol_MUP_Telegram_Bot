@@ -4,6 +4,7 @@ import src.bot_utils as bot_utils
 import src.utils.page_parsing as page_parsing
 import src.utils.link_generator as link_generator
 import src.controllers.start_message as start_message_controller
+import src.controllers.register_user as register_user
 import src.utils.db_utils as db_utils
 from models.user_model import User
 import re
@@ -22,15 +23,7 @@ def start_message(message):
 @bot.message_handler(commands=['register'])
 def register_handler(message):
     account = message.text.split(' ')[1]
-    if not page_parsing.is_valid_page(link_generator.generate_page_from_account(account)):
-        bot.send_message(message.chat.id, 'Invalid account')
-        return
-    if db_utils.check_account_exist(User, message.chat.id):
-        bot.send_message(message.chat.id, 'Account already exists')
-        return
-    User(chat_id=str(message.chat.id), account=account).save()
-    result_msg = f'New user {str(message.chat.id)} : {account} saved'
-    bot.send_message(message.chat.id, result_msg)
+    bot.send_message(message.chat.id, register_user.register_user(User, account, message.chat.id))
 
 
 @bot.message_handler(content_types=['text'])
