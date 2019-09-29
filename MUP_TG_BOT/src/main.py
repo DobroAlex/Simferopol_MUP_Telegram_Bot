@@ -3,6 +3,8 @@ import src.bot_creation as bot_creation
 import src.bot_utils as bot_utils
 import src.utils.page_parsing as page_parsing
 import src.utils.link_generator as link_generator
+import src.controllers.start_message as start_message_controller
+import src.utils.db_utils as db_utils
 from models.user_model import User
 import re
 import urllib
@@ -14,17 +16,16 @@ bot = bot_creation.create_bot()
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Welcome to bot. You can send your account (6 digits) to retrieve current '
-                                      'information or use "/register 6digits" to get this information regularly ')
+    bot.send_message(message.chat.id, start_message_controller.start_message())
 
 
 @bot.message_handler(commands=['register'])
-def register_routine(message):
+def register_handler(message):
     account = message.text.split(' ')[1]
     if not page_parsing.is_valid_page(link_generator.generate_page_from_account(account)):
         bot.send_message(message.chat.id, 'Invalid account')
         return
-    if User.objects(chat_id=str(message.chat.id)):
+    if db_utils.check_account_exist(User, message.chat.id):
         bot.send_message(message.chat.id, 'Account already exists')
         return
     User(chat_id=str(message.chat.id), account=account).save()
