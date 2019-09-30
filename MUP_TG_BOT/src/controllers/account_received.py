@@ -2,7 +2,9 @@ import src.utils.page_parsing as page_parsing
 import src.utils.link_generator as link_gen
 import urllib
 from bs4 import BeautifulSoup
-import  re
+import re
+
+
 def account_received(account_id: str) -> str:
     try:
         check_page = link_gen.generate_page_from_account(account_id)
@@ -17,7 +19,6 @@ def account_received(account_id: str) -> str:
 
         soup_result = soup.find('div', attrs={'class': 'kvit'}).text
         result = " ".join(soup_result.split())
-
 
         response += '\n\n\n'
 
