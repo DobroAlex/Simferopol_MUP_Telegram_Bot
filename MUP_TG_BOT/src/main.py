@@ -6,6 +6,7 @@ import src.utils.link_generator as link_generator
 import src.controllers.start_message as start_message_controller
 import src.controllers.register_user as register_user
 import src.controllers.delete_user as delete_user
+import src.controllers.account_received as acc_received
 import src.utils.db_utils as db_utils
 from models.user_model import User
 import re
@@ -26,44 +27,18 @@ def register_handler(message):
     account = message.text.split(' ')[1]
     bot.send_message(message.chat.id, register_user.register_user(User, account, message.chat.id))
 
+
 @bot.message_handler(commands=['delete_me'])
 def delete_me_handler(message):
     bot.send_message(message.chat.id, delete_user.delete_user(User, str(message.chat.id)))
 
+
 @bot.message_handler(content_types=['text'])
 def work_with_request(message):
     message.text = message.text.lower().strip()
-    try:
-        if re.match(r'\d{6}', message.text):
-            if not page_parsing.is_valid_page(f'http://mup-kgs-simf.ru/index.php?str=nach_dolg&lschet={message.text}'):
-                bot.send_message(message.chat.id, 'Invalid account')
-                return
-            else:
-                bot.send_message(message.chat.id, f'Searching for {message.text}')
-                uf = urllib.request.urlopen(f'http://mup-kgs-simf.ru/index.php?str=nach_dolg&lschet={message.text}')
-                html = uf.read()
-                html = html.decode('utf-8')
-                soup = BeautifulSoup(html, features='lxml')
-                soup_result = soup.find('div', attrs={'class': 'print1'})
-                response = soup_result.text
-                bot.send_message(message.chat.id, response)
-
-                soup_result = soup.find('div', attrs={'class': 'kvit'}).text
-                result = " ".join(soup_result.split())
-
-                response = re.search(r'По состоянию на \d\d\.\d\d\.\d\d\d\d', result).group() + '\n'
-
-                response += re.search(r'Тариф за 1м2 с \d\d\.\d\d.\d\d\d\d=(.)*р\.', result).group() + '\n'
-
-                response += re.search(r'Сумма к оплате (\d)*,(\d)* руб.', result).group() + '\n'
-
-                print(response)
-
-                bot.send_message(message.chat.id, response)
-    except Exception as e:  # ignoring PeP
-        print(f'{type(e)}:{e}')
-        bot.send_message(message.chat.id, 'ops!')
-        pass
+    if re.match(r'\d{6}', message.text):
+        res = acc_received.account_received(message.text)
+        bot.send_message(message.chat.id, acc_received.account_received(message.text))
 
 
 try:
